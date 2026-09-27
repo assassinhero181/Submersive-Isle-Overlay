@@ -6,6 +6,7 @@
   "scripts": {
     "start": "electron .",
     "build:win": "electron-builder --win nsis portable"
+    "dist": "electron-builder --win nsis portable"
   },
   "keywords": [],
   "author": "SubmersiveRP",
