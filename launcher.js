@@ -2,7 +2,7 @@ const state = {
   discordId: localStorage.getItem("submersiveDiscordId") || "",
   discord: false,
   steam: false,
-  steamId: localStorage.getItem("submersiveSteamId") || ""
+  steamId: ""
 };
 
 const $ = id => document.getElementById(id);
