@@ -1,0 +1,16 @@
+SUBMERSIVE ISLE OVERLAY - UPDATE SYSTEM
+
+The launcher has an UPDATE button. Updates use electron-updater with a standard Windows NSIS installer.
+
+1. Put your HTTPS update server URL in update-config.json and the publish.url in package.json.
+2. Build the Windows release with BUILD-PORTABLE-EXE.bat or npm run build:win.
+3. For automatic updates, distribute the NSIS Setup EXE and the generated latest.yml together from the configured update URL.
+4. Increase package.json version for every release (example: 1.0.1, 1.0.2).
+5. Users with the installed NSIS version can press UPDATE in the launcher.
+6. Portable builds are downloadable but are not self-updating; use the installed Setup version for automatic updates.
+
+SECURITY:
+- Use HTTPS only.
+- Do not host arbitrary scripts as updates.
+- Keep release artifacts and latest.yml from the same build.
+- Code-sign release installers when you have a trusted Windows certificate.

@@ -1,0 +1,654 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>document.documentElement.classList.add('js')</script>
+
+<title>Submersive Isle — Status Report</title>
+
+<meta name="description" content="Submersive Isle Evrima survival overlay">
+<meta name="theme-color" content="#050b12">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="./styles.css">
+</head>
+
+<body>
+
+<div class="bg-grid" aria-hidden="true"></div>
+<div class="bg-scan" aria-hidden="true"></div>
+<div class="bg-vignette" aria-hidden="true"></div>
+
+<!-- =========================================================
+     MINIMAL GAME HUD
+========================================================= -->
+
+<div id="minimalHud" class="minimal-hud">
+
+    <div class="mini-player">
+        <span class="mini-species" id="miniSpecies">DEINOSUCHUS</span>
+        <span class="mini-status">
+            <i class="status-dot"></i>
+            <span id="miniStatus">ALIVE</span>
+        </span>
+    </div>
+
+    <div class="mini-bars">
+
+        <div class="mini-bar">
+            <span>HP</span>
+            <div class="mini-track">
+                <div id="miniHealth" class="mini-fill"></div>
+            </div>
+            <b id="miniHealthText">100%</b>
+        </div>
+
+        <div class="mini-bar">
+            <span>STM</span>
+            <div class="mini-track">
+                <div id="miniStamina" class="mini-fill"></div>
+            </div>
+            <b id="miniStaminaText">100%</b>
+        </div>
+
+        <div class="mini-bar">
+            <span>HUN</span>
+            <div class="mini-track">
+                <div id="miniHunger" class="mini-fill"></div>
+            </div>
+            <b id="miniHungerText">100%</b>
+        </div>
+
+        <div class="mini-bar">
+            <span>THR</span>
+            <div class="mini-track">
+                <div id="miniThirst" class="mini-fill"></div>
+            </div>
+            <b id="miniThirstText">100%</b>
+        </div>
+
+    </div>
+
+    <div class="mini-growth">
+        <span>GROWTH</span>
+        <b id="miniGrowth">72.4%</b>
+    </div>
+
+    <div class="tab-hint">
+        <kbd>TAB</kbd>
+        <span>STATUS</span>
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     PRIME MINI TRACKER
+========================================================= -->
+
+<div id="miniPrimeTracker" class="mini-prime-tracker">
+
+    <div class="mini-prime-head">
+        <span>PRIME</span>
+        <b id="miniPrimeCount">0/5</b>
+        <strong id="miniPrimeState" class="mini-prime-state">PRIME</strong>
+    </div>
+
+    <div id="miniPrimeRequirements" class="mini-prime-requirements"></div>
+
+</div>
+
+
+<!-- =========================================================
+     GAMEPLAY MINI MAP
+     TOP LEFT OF SCREEN
+========================================================= -->
+
+<div id="miniMap" class="game-mini-map">
+    <div class="game-mini-map-viewport">
+
+        <img
+            id="miniMapImage"
+            src="./assets/isle-map.jpg"
+            alt=""
+        >
+
+    </div>
+</div>
+
+
+<!-- =========================================================
+     FULL OVERLAY
+========================================================= -->
+
+<div id="overlay" class="overlay hidden">
+
+    <header class="nav">
+
+        <button class="brand nav-button" data-page="status">
+            <span class="brand-mark">◈</span>
+            <span class="brand-txt">SUBMERSIVE<b>ISLE</b></span>
+        </button>
+
+        <nav class="nav-links">
+
+            <button class="nav-link active" data-page="status">
+                STATUS REPORT
+            </button>
+
+            <button class="nav-link" data-page="inventory">
+                INVENTORY
+            </button>
+
+        </nav>
+
+        <div class="nav-clock">
+            <span id="clock">00:00:00</span>
+            <span class="clk-sep">·</span>
+            <span>EVRIMA</span>
+        </div>
+
+    </header>
+
+
+    <main class="overlay-main">
+
+        <!-- =================================================
+             STATUS REPORT
+        ================================================== -->
+
+        <section id="page-status" class="page active">
+
+            <div class="console-top">
+                <span id="serverTime">SERVER 00:00:00</span>
+
+                <span class="ct-status">
+                    <i class="pulse"></i>
+                    <span id="connectionStatus">CONNECTED</span>
+                </span>
+            </div>
+
+
+            <div class="status-header">
+
+                <div>
+                    <p class="eyebrow">STATUS REPORT · 01</p>
+
+                    <h1>
+                        <strong>STATUS REPORT</strong>
+                    </h1>
+                </div>
+
+                <div class="creature-card">
+
+                    <div class="creature-id">
+                        <span>SPECIES</span>
+                        <b id="speciesName">DEINOSUCHUS</b>
+                    </div>
+
+                    <div class="creature-id">
+                        <span>SEX</span>
+                        <b id="sex">FEMALE</b>
+                    </div>
+
+                    <div class="creature-id">
+                        <span>AGE</span>
+                        <b id="age">ADULT</b>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="dashboard-grid">
+
+                <div class="dashboard-left">
+
+                    <article class="panel health-panel">
+
+                        <div class="panel-head">
+                            <span class="panel-index">S-01</span>
+                            <span class="panel-title">VITAL STATUS</span>
+                            <span class="panel-state nominal">NOMINAL</span>
+                        </div>
+
+                        <div class="vitals">
+
+                            <div class="vital">
+                                <div class="vital-top">
+                                    <span>HEALTH</span>
+                                    <b id="healthValue">100%</b>
+                                </div>
+
+                                <div class="large-track">
+                                    <div id="healthBar" class="large-fill"></div>
+                                </div>
+                            </div>
+
+
+                            <div class="vital">
+                                <div class="vital-top">
+                                    <span>STAMINA</span>
+                                    <b id="staminaValue">100%</b>
+                                </div>
+
+                                <div class="large-track">
+                                    <div id="staminaBar" class="large-fill"></div>
+                                </div>
+                            </div>
+
+
+                            <div class="vital">
+                                <div class="vital-top">
+                                    <span>HUNGER</span>
+                                    <b id="hungerValue">100%</b>
+                                </div>
+
+                                <div class="large-track">
+                                    <div id="hungerBar" class="large-fill"></div>
+                                </div>
+                            </div>
+
+
+                            <div class="vital">
+                                <div class="vital-top">
+                                    <span>THIRST</span>
+                                    <b id="thirstValue">100%</b>
+                                </div>
+
+                                <div class="large-track">
+                                    <div id="thirstBar" class="large-fill"></div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </article>
+
+
+                    <article class="panel growth-panel">
+
+                        <div class="panel-head">
+                            <span class="panel-index">S-02</span>
+                            <span class="panel-title">GROWTH PROGRESS</span>
+                            <span class="panel-state nominal">ACTIVE</span>
+                        </div>
+
+                        <div class="growth-display">
+
+                            <div class="growth-number">
+                                <b id="growthValue">72.4</b>
+                                <span>%</span>
+                            </div>
+
+                            <div class="growth-info">
+
+                                <div class="growth-row">
+                                    <span>CURRENT STAGE</span>
+                                    <b id="growthStage">ADULT</b>
+                                </div>
+
+                                <div class="growth-row">
+                                    <span>GROWTH RATE</span>
+                                    <b id="growthRate">+0.42 / MIN</b>
+                                </div>
+
+                                <div class="growth-row">
+                                    <span>EST. COMPLETE</span>
+                                    <b id="growthEta">00:41:22</b>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="growth-track">
+                            <div id="growthBar" class="growth-fill"></div>
+                            <div class="growth-marker"></div>
+                        </div>
+
+                    </article>
+
+<article class="panel stats-panel">
+
+                        <div class="panel-head">
+                            <span class="panel-index">S-03</span>
+                            <span class="panel-title">CREATURE DATA</span>
+                        </div>
+
+                        <div class="data-list">
+
+                            <div class="data-row data-row-wide creature-food-row">
+                                <span>PREFERRED FOOD</span>
+                                <b id="preferredFood">--</b>
+                            </div>
+
+                        </div>
+
+                    </article>
+
+
+                    <article class="panel status-effects-panel">
+
+                        <div class="panel-head">
+                            <span class="panel-index">S-04</span>
+                            <span class="panel-title">STATUS EFFECTS</span>
+                            <span class="panel-state" id="statusEffectsState">CLEAR</span>
+                        </div>
+
+                        <div id="statusEffects" class="status-effects-list">
+                            <span class="status-effect-none">NO ACTIVE EFFECTS</span>
+                        </div>
+
+                    </article>
+
+
+                    <article class="panel environment-panel">
+
+                        <div class="panel-head">
+                            <span class="panel-index">S-05</span>
+                            <span class="panel-title">ENVIRONMENT</span>
+                            <span class="panel-state nominal">STABLE</span>
+                        </div>
+
+                        <div class="environment-grid">
+
+                            <div class="env-stat">
+                                <span>LOCATION</span>
+                                <b id="location">GONDWA</b>
+                            </div>
+
+                            <div class="env-stat">
+                                <span>WEATHER</span>
+                                <b id="weather">--</b>
+                            </div>
+
+                            <div class="env-stat">
+                                <span>TEMPERATURE</span>
+                                <b id="temperature">-- °C</b>
+                            </div>
+
+                            <div class="env-stat">
+                                <span>TIME</span>
+                                <b id="gameTime">--:--</b>
+                            </div>
+
+                        </div>
+
+
+                    </article>
+
+                    
+
+                </div>
+
+
+                <div class="dashboard-right">
+
+                    <article class="panel radar-panel">
+
+                        <div class="panel-head">
+                            <span class="panel-index">R-01</span>
+                            <span class="panel-title">PROXIMITY SCAN</span>
+                            <span class="panel-state" id="radarState">SCANNING</span>
+                        </div>
+
+                        <div class="radar radar-map">
+
+                            <img id="radarMapImage" src="./assets/isle-map.jpg" alt="The Isle map centered on your live position">
+                            <div class="radar-map-shade"></div>
+                            <div class="radar-ring ring-one"></div>
+                            <div class="radar-ring ring-two"></div>
+                            <div class="radar-ring ring-three"></div>
+                            <div class="radar-cross horizontal"></div>
+                            <div class="radar-cross vertical"></div>
+                            <div class="radar-sweep"></div>
+                            <div class="radar-center"></div>
+                            <div id="radarLiveContacts"></div>
+                            <span class="radar-label north">N</span>
+                            <span class="radar-label east">E</span>
+                            <span class="radar-label south">S</span>
+                            <span class="radar-label west">W</span>
+
+                        </div>
+
+                        <div class="radar-footer">
+                            <span>RANGE</span>
+                            <b id="radarRange">250M</b>
+
+                            <span>CONTACTS</span>
+                            <b id="radarContacts">03</b>
+                        </div>
+
+                    </article>
+
+<article class="panel prime-panel">
+
+                            <div class="panel-head">
+                                <span class="panel-index">R-02</span>
+                                <span class="panel-title">PRIME TRACKER</span>
+                                <span class="panel-state" id="primeEligibilityState">CHECKING</span>
+                            </div>
+
+                            <div class="prime-summary">
+                                <div class="prime-count">
+                                    <b id="primeConditionCount">0 / 5</b>
+                                    <span>REQUIRED</span>
+                                </div>
+                                <div class="prime-summary-text" id="primeEligibilityText">
+                                    TRACKING THIS DINO'S PRIME PROGRESS FROM POSITION, DIET, AND MUTATIONS.
+                                </div>
+                            </div>
+
+                            <div id="primeRequirements" class="prime-requirements"></div>
+
+                    </article>
+
+
+                    
+
+
+                    <article class="panel event-panel">
+
+                        <div class="panel-head">
+                            <span class="panel-index">R-03</span>
+                            <span class="panel-title">SURVIVAL LOG</span>
+                            <span class="panel-state nominal">LIVE</span>
+                        </div>
+
+                        <div id="eventLog" class="event-log">
+
+                            <div class="event">
+                                <span>--:--:--</span>
+                                <b>STATUS REPORT INITIALIZED</b>
+                            </div>
+
+                            <div class="event">
+                                <span>14:26:51</span>
+                                <b>CREATURE TELEMETRY RECEIVED</b>
+                            </div>
+
+                            <div class="event">
+                                <span>14:26:39</span>
+                                <b>PROXIMITY SCAN COMPLETE</b>
+                            </div>
+
+                            <div class="event">
+                                <span>14:26:11</span>
+                                <b>SERVER CONNECTION STABLE</b>
+                            </div>
+
+                        </div>
+
+                    </article>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             INVENTORY
+        ================================================== -->
+
+        <section id="page-inventory" class="page">
+
+            <div class="page-heading">
+
+                <div>
+                    <p class="eyebrow">PLAYER SYSTEM · 03</p>
+                    <h2>PLAYER <strong>INVENTORY</strong></h2>
+                    <p>ITEM STORAGE READY FOR VERIFIED GAME DATA.</p>
+                </div>
+
+                <div class="page-status-chip" id="inventoryDataStatus">
+                    <i></i>
+                    <span>WAITING FOR DATA</span>
+                </div>
+
+            </div>
+
+
+            <div class="inventory-layout">
+
+                <section class="panel inventory-panel">
+
+                    <div class="panel-head">
+                        <span class="panel-index">I-01</span>
+                        <span class="panel-title">ITEM STORAGE</span>
+                        <span class="panel-state" id="inventoryCount">0 ITEMS</span>
+                    </div>
+
+                    <div id="inventoryList" class="inventory-list">
+
+                        <div class="empty-state">
+                            <div class="empty-icon">▱</div>
+                            <b>INVENTORY EMPTY</b>
+                            <span>No verified item data has been received yet.</span>
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <aside class="panel inventory-side">
+
+                    <div class="panel-head">
+                        <span class="panel-index">I-02</span>
+                        <span class="panel-title">DATA SOURCE</span>
+                    </div>
+
+                    <div class="source-box">
+
+                        <span>SOURCE</span>
+                        <b id="inventorySource">DISCORD / GAME BRIDGE</b>
+
+                        <span>STATUS</span>
+                        <b id="inventorySourceDetail">PLACEHOLDER READY</b>
+
+                    </div>
+
+                    <button class="module-button" id="refreshInventory">
+                        REFRESH DATA
+                    </button>
+
+                    <p class="module-note">
+                        The Discord bot/API can populate this module later without changing the inventory interface.
+                    </p>
+
+                </aside>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             SERVER
+        ================================================== -->
+
+        <section id="page-server" class="page">
+
+            <div class="page-heading">
+                <p class="eyebrow">NETWORK SYSTEM · 05</p>
+                <h2>SERVER <strong>REPORT</strong></h2>
+                <p>LIVE SERVER AND CONNECTION INFORMATION.</p>
+            </div>
+
+
+            <div class="server-grid">
+
+                <article class="server-card">
+                    <span>SERVER</span>
+                    <b id="serverName">SUBMERSIVE ISLE</b>
+                </article>
+
+                <article class="server-card">
+                    <span>STATUS</span>
+                    <b id="serverStatus">ONLINE</b>
+                </article>
+
+                <article class="server-card">
+                    <span>PLAYERS</span>
+                    <b id="playerCount">-- / --</b>
+                </article>
+
+                <article class="server-card">
+                    <span>PING</span>
+                    <b id="serverPing">-- MS</b>
+                </article>
+
+                <article class="server-card wide">
+                    <span>BUILD</span>
+                    <b id="serverBuild">THE ISLE EVRIMA</b>
+                </article>
+
+                <article class="server-card wide">
+                    <span>CONNECTION</span>
+                    <b id="serverConnection">CONNECTED</b>
+                </article>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <footer class="overlay-footer">
+
+        <div>
+            <span class="footer-brand">SUBMERSIVE ISLE</span>
+            <span>EVRIMA SURVIVAL INTERFACE</span>
+        </div>
+
+        <div>
+            <span>CLIENT</span>
+            <b id="clientStatus">ONLINE</b>
+        </div>
+
+        <div class="overlay-close-controls">
+            <button id="closeOverlay" class="hud-close-button" type="button">
+                <kbd>ESC</kbd>
+                <span>CLOSE HUD</span>
+            </button>
+        </div>
+
+    </footer>
+
+</div>
+
+
+<script src="./main.js"></script>
+
+</body>
+</html>

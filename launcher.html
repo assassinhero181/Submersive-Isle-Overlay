@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self'; img-src 'self' data:;">
+<title>Submersive Isle Overlay v 1.0.0</title>
+<link rel="stylesheet" href="./launcher.css">
+</head>
+<body>
+<main class="launcher-panel">
+  <header class="panel-header">
+    <div class="brand-lockup">
+      <div class="brand-mark">SI</div>
+      <div>
+        <div class="brand-name">SUBMERSIVE <b>ISLE</b></div>
+        <div class="brand-sub">OVERLAY DESKTOP LAUNCHER</div>
+      </div>
+    </div>
+    <div class="header-state"><span class="state-dot"></span><span>READY</span></div>
+  </header>
+
+  <section class="intro">
+    <div>
+      <div class="section-kicker">ACCOUNT CONNECTION</div>
+      <h1>CONNECT <span>YOUR ACCOUNT</span></h1>
+      <p>Link Discord and securely sign in through Steam before opening the overlay.</p>
+    </div>
+    <div class="version-box"><span>VERSION</span><b>1.0.0</b></div>
+  </section>
+
+  <section class="connections">
+    <article class="connection-card" id="discordCard">
+      <div class="card-icon discord">D</div>
+      <div class="card-copy">
+        <strong>DISCORD</strong>
+        <span id="discordStatus">NOT LINKED</span>
+      </div>
+      <button class="secondary" id="discordBtn" type="button">LINK DISCORD</button>
+    </article>
+
+    <article class="connection-card" id="steamCard">
+      <div class="card-icon steam">S</div>
+      <div class="card-copy">
+        <strong>STEAM ACCOUNT</strong>
+        <span id="steamStatus">NOT VERIFIED</span>
+      </div>
+      <div class="steam-controls">
+        <input id="steamId" readonly placeholder="SIGN IN WITH STEAM" aria-label="Verified SteamID64">
+        <button class="secondary" id="steamBtn" type="button">CONNECT STEAM</button>
+      </div>
+    </article>
+  </section>
+
+  <section class="identity-bar" id="identityBox">
+    <div>
+      <span>ACCOUNT STATUS</span>
+      <b id="identityStatus">DISCORD + STEAM REQUIRED</b>
+    </div>
+    <div class="identity-light"></div>
+  </section>
+
+
+  <section class="identity-bar" id="backendBox">
+    <div>
+      <span>BACKEND STATUS</span>
+      <b id="backendStatus">CHECKING...</b>
+    </div>
+    <button class="secondary" id="backendRetryBtn" type="button" hidden>RETRY</button>
+  </section>
+
+  <section class="launch-area">
+    <button class="launch" id="launchBtn" disabled type="button">
+      <span>LAUNCH OVERLAY</span><b>→</b>
+    </button>
+    <button class="update" id="updateBtn" type="button">UPDATE</button>
+    <button class="exit" id="exitBtn" type="button">EXIT</button>
+  </section>
+  <div class="update-status" id="updateStatus" role="status">UPDATE CHECK READY</div>
+
+  <footer class="panel-footer">
+    <span>SUBMERSIVE ISLE</span>
+    <span>DISCORD + STEAM</span>
+  </footer>
+</main>
+<script src="./launcher.js"></script>
+</body>
+</html>
