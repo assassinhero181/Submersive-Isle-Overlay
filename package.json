@@ -1,6 +1,6 @@
 {
   "name": "submersiveisleoverlay",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Submersive Isle Overlay v 1.0.0 \u2014 The Isle Evrima desktop launcher and live overlay",
   "main": "overlay.js",
   "scripts": {
