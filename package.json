@@ -5,7 +5,7 @@
   "main": "overlay.js",
   "scripts": {
     "start": "electron .",
-    "build:win": "electron-builder --win nsis portable"
+    "build:win": "electron-builder --win nsis portable",
     "dist": "electron-builder --win nsis portable"
   },
   "keywords": [],
