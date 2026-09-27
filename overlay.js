@@ -1760,17 +1760,46 @@ ipcMain.on(
     _event,
     identity
   ) {
+    /*
+     * Steam identity must come from the authenticated
+     * API session — NEVER from renderer/localStorage.
+     */
+    const authState = getAuthState();
+
+    const authenticatedSteamId =
+      String(authState?.steamId || "").trim();
+
+    const discordId =
+      String(identity?.discordId || "").trim();
+
     if (
-      !identity ||
-      !identity.steamId ||
-      !identity.discordId
+      !authState?.authenticated ||
+      !/^\d{17}$/.test(authenticatedSteamId)
     ) {
       console.error(
-        "launch-overlay requires steamId and discordId."
+        "launch-overlay requires an authenticated Steam session."
       );
 
       return;
     }
+
+    if (!discordId) {
+      console.error(
+        "launch-overlay requires a linked Discord account."
+      );
+
+      return;
+    }
+
+    /*
+     * Build a clean identity here.
+     *
+     * Ignore identity.steamId supplied by the renderer.
+     */
+    const verifiedIdentity = {
+      steamId: authenticatedSteamId,
+      discordId: discordId
+    };
 
     if (
       !overlayWindow ||
@@ -1803,9 +1832,13 @@ ipcMain.on(
         return;
       }
 
+      /*
+       * Only send the SteamID verified by the
+       * backend Steam authentication session.
+       */
       overlayWindow.webContents.send(
         "identity-linked",
-        identity
+        verifiedIdentity
       );
 
       overlayWindow.webContents.send(
@@ -1836,7 +1869,6 @@ ipcMain.on(
     }
   }
 );
-
 
 // ============================================================
 // APP READY
