@@ -1511,11 +1511,11 @@ function createLauncher() {
 
   launcherWindow = new BrowserWindow({
     width: 720,
-    height: 600,
+    height: 720,
     minWidth: 720,
-    minHeight: 600,
+    minHeight: 720,
     maxWidth: 720,
-    maxHeight: 600,
+    maxHeight: 720,
     resizable: false,
     maximizable: false,
     fullscreenable: false,
