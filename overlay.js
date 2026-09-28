@@ -1617,52 +1617,6 @@ function isAllowedTabForeground() {
   });
 }
 
-let overlayFocusWatcher = null;
-let overlayFocusCheckInFlight = false;
-
-function startOverlayFocusWatcher() {
-  if (overlayFocusWatcher) {
-    return;
-  }
-
-  overlayFocusWatcher = setInterval(
-    async function () {
-      if (
-        overlayFocusCheckInFlight ||
-        !overlayWindow ||
-        overlayWindow.isDestroyed()
-      ) {
-        return;
-      }
-
-      overlayFocusCheckInFlight = true;
-
-      try {
-        const gameOrOverlayActive =
-          await isAllowedTabForeground();
-
-        if (gameOrOverlayActive) {
-  overlayWindow.setAlwaysOnTop(
-    true,
-    "screen-saver"
-  );
-
-  overlayWindow.showInactive();
-} else {
-  overlayWindow.setAlwaysOnTop(
-    false
-  );
-
-  overlayWindow.hide();
-}
-      } finally {
-        overlayFocusCheckInFlight = false;
-      }
-    },
-    1000
-  );
-}
-
 // ============================================================
 // OVERLAY TOGGLE
 // ============================================================
@@ -1681,10 +1635,7 @@ function toggleOverlay() {
   );
 
   overlayWindow.showInactive();
-
-  overlayWindow.setAlwaysOnTop(
-    false,
-  );
+  overlayWindow.moveTop();
 }
 
 
@@ -1887,13 +1838,9 @@ ipcMain.on(
       );
 
       overlayWindow.show();
-
-      overlayWindow.setAlwaysOnTop(
-        false,
-      );
+      overlayWindow.moveTop();
 
       startGameLifecycleWatcher();
-      startOverlayFocusWatcher();
     }
 
     if (
@@ -1970,11 +1917,6 @@ app.on(
   "will-quit",
   function () {
     stopGameLifecycleWatcher();
-
-    if (overlayFocusWatcher) {
-      clearInterval(overlayFocusWatcher);
-      overlayFocusWatcher = null;
-    }
 
     globalShortcut.unregisterAll();
 
