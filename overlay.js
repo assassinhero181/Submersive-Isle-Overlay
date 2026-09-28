@@ -1511,11 +1511,11 @@ function createLauncher() {
 
   launcherWindow = new BrowserWindow({
     width: 720,
-    height: 720,
+    height: 600,
     minWidth: 720,
-    minHeight: 720,
+    minHeight: 600,
     maxWidth: 720,
-    maxHeight: 720,
+    maxHeight: 600,
     resizable: false,
     maximizable: false,
     fullscreenable: false,
@@ -1617,36 +1617,43 @@ function isAllowedTabForeground() {
   });
 }
 
-let overlayPriorityWatcher = null;
-let overlayPriorityCheckInFlight = false;
+let overlayFocusWatcher = null;
+let overlayFocusCheckInFlight = false;
 
-function startOverlayPriorityWatcher() {
-  if (overlayPriorityWatcher) {
+function startOverlayFocusWatcher() {
+  if (overlayFocusWatcher) {
     return;
   }
 
-  overlayPriorityWatcher = setInterval(
+  overlayFocusWatcher = setInterval(
     async function () {
       if (
-        overlayPriorityCheckInFlight ||
+        overlayFocusCheckInFlight ||
         !overlayWindow ||
-        overlayWindow.isDestroyed()
+        overlayWindow.isDestroyed() ||
+        !overlayWindow.isVisible()
       ) {
         return;
       }
 
-      overlayPriorityCheckInFlight = true;
+      overlayFocusCheckInFlight = true;
 
       try {
         const gameOrOverlayActive =
           await isAllowedTabForeground();
 
-        overlayWindow.setAlwaysOnTop(
-          gameOrOverlayActive,
-          "screen-saver"
-        );
+        if (gameOrOverlayActive) {
+          overlayWindow.setAlwaysOnTop(
+            true,
+            "screen-saver"
+          );
+        } else {
+          overlayWindow.setAlwaysOnTop(
+            false
+          );
+        }
       } finally {
-        overlayPriorityCheckInFlight = false;
+        overlayFocusCheckInFlight = false;
       }
     },
     1000
@@ -1671,7 +1678,10 @@ function toggleOverlay() {
   );
 
   overlayWindow.showInactive();
-  overlayWindow.moveTop();
+
+  overlayWindow.setAlwaysOnTop(
+    false,
+  );
 }
 
 
@@ -1874,9 +1884,13 @@ ipcMain.on(
       );
 
       overlayWindow.show();
-      overlayWindow.moveTop();
+
+      overlayWindow.setAlwaysOnTop(
+        false,
+      );
 
       startGameLifecycleWatcher();
+      startOverlayFocusWatcher();
     }
 
     if (
@@ -1953,6 +1967,11 @@ app.on(
   "will-quit",
   function () {
     stopGameLifecycleWatcher();
+
+    if (overlayFocusWatcher) {
+      clearInterval(overlayFocusWatcher);
+      overlayFocusWatcher = null;
+    }
 
     globalShortcut.unregisterAll();
 
