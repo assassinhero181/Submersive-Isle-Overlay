@@ -1630,8 +1630,7 @@ function startOverlayFocusWatcher() {
       if (
         overlayFocusCheckInFlight ||
         !overlayWindow ||
-        overlayWindow.isDestroyed() ||
-        !overlayWindow.isVisible()
+        overlayWindow.isDestroyed()
       ) {
         return;
       }
@@ -1643,15 +1642,19 @@ function startOverlayFocusWatcher() {
           await isAllowedTabForeground();
 
         if (gameOrOverlayActive) {
-          overlayWindow.setAlwaysOnTop(
-            true,
-            "screen-saver"
-          );
-        } else {
-          overlayWindow.setAlwaysOnTop(
-            false
-          );
-        }
+  overlayWindow.setAlwaysOnTop(
+    true,
+    "screen-saver"
+  );
+
+  overlayWindow.showInactive();
+} else {
+  overlayWindow.setAlwaysOnTop(
+    false
+  );
+
+  overlayWindow.hide();
+}
       } finally {
         overlayFocusCheckInFlight = false;
       }
