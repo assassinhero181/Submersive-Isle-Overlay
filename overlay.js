@@ -1617,6 +1617,42 @@ function isAllowedTabForeground() {
   });
 }
 
+let overlayPriorityWatcher = null;
+let overlayPriorityCheckInFlight = false;
+
+function startOverlayPriorityWatcher() {
+  if (overlayPriorityWatcher) {
+    return;
+  }
+
+  overlayPriorityWatcher = setInterval(
+    async function () {
+      if (
+        overlayPriorityCheckInFlight ||
+        !overlayWindow ||
+        overlayWindow.isDestroyed()
+      ) {
+        return;
+      }
+
+      overlayPriorityCheckInFlight = true;
+
+      try {
+        const gameOrOverlayActive =
+          await isAllowedTabForeground();
+
+        overlayWindow.setAlwaysOnTop(
+          gameOrOverlayActive,
+          "screen-saver"
+        );
+      } finally {
+        overlayPriorityCheckInFlight = false;
+      }
+    },
+    1000
+  );
+}
+
 // ============================================================
 // OVERLAY TOGGLE
 // ============================================================
