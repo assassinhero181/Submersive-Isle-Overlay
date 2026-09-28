@@ -1432,7 +1432,7 @@ function createOverlay() {
         false,
 
       alwaysOnTop:
-        true,
+        false,
 
       skipTaskbar:
         true,
@@ -1462,8 +1462,7 @@ function createOverlay() {
     });
 
   overlayWindow.setAlwaysOnTop(
-    true,
-    "screen-saver"
+    false,
   );
 
   overlayWindow.setIgnoreMouseEvents(
@@ -1618,6 +1617,48 @@ function isAllowedTabForeground() {
   });
 }
 
+let overlayFocusWatcher = null;
+let overlayFocusCheckInFlight = false;
+
+function startOverlayFocusWatcher() {
+  if (overlayFocusWatcher) {
+    return;
+  }
+
+  overlayFocusWatcher = setInterval(
+    async function () {
+      if (
+        overlayFocusCheckInFlight ||
+        !overlayWindow ||
+        overlayWindow.isDestroyed() ||
+        !overlayWindow.isVisible()
+      ) {
+        return;
+      }
+
+      overlayFocusCheckInFlight = true;
+
+      try {
+        const gameOrOverlayActive =
+          await isAllowedTabForeground();
+
+        if (gameOrOverlayActive) {
+          overlayWindow.setAlwaysOnTop(
+            true,
+            "screen-saver"
+          );
+        } else {
+          overlayWindow.setAlwaysOnTop(
+            false
+          );
+        }
+      } finally {
+        overlayFocusCheckInFlight = false;
+      }
+    },
+    1000
+  );
+}
 
 // ============================================================
 // OVERLAY TOGGLE
@@ -1639,8 +1680,7 @@ function toggleOverlay() {
   overlayWindow.showInactive();
 
   overlayWindow.setAlwaysOnTop(
-    true,
-    "screen-saver"
+    false,
   );
 }
 
@@ -1676,8 +1716,7 @@ function closeOverlay() {
 
   overlayWindow.showInactive();
   overlayWindow.setAlwaysOnTop(
-    true,
-    "screen-saver"
+    false,
   );
 }
 
@@ -1712,8 +1751,7 @@ ipcMain.on(
     overlayWindow.show();
 
     overlayWindow.setAlwaysOnTop(
-      true,
-      "screen-saver"
+      false,
     );
 
     overlayWindow.webContents.send(
@@ -1848,11 +1886,11 @@ ipcMain.on(
       overlayWindow.show();
 
       overlayWindow.setAlwaysOnTop(
-        true,
-        "screen-saver"
+        false,
       );
 
       startGameLifecycleWatcher();
+      startOverlayFocusWatcher();
     }
 
     if (
@@ -1930,6 +1968,11 @@ app.on(
   function () {
     stopGameLifecycleWatcher();
 
+    if (overlayFocusWatcher) {
+      clearInterval(overlayFocusWatcher);
+      overlayFocusWatcher = null;
+    }
+
     globalShortcut.unregisterAll();
 
     if (discordServer) {
@@ -1946,7 +1989,6 @@ app.on(
     }
   }
 );
-
 
 // ============================================================
 // WINDOW CLOSE SAFETY
