@@ -699,18 +699,6 @@ const SubmersiveIsle = {
               </label>
 
               <label>
-                <span>MAP ZOOM</span>
-                <input
-                  id="setMiniZoom"
-                  type="range"
-                  min="0.6"
-                  max="2.5"
-                  step="0.1"
-                >
-                <b id="setMiniZoomValue"></b>
-              </label>
-
-              <label>
                 <span>SHOW POSITION PING</span>
                 <input
                   id="setMiniPing"
@@ -1081,7 +1069,6 @@ const SubmersiveIsle = {
       miniEnabled: true,
       miniSize: 350,
       miniOpacity: 0.65,
-      miniZoom: 1,
       miniPing: true,
 
       hudOpacity: 1,
@@ -1226,22 +1213,9 @@ const SubmersiveIsle = {
     );
 
     bindRange(
-      "setMiniSize",
-      "miniSize",
-      "setMiniSizeValue",
-      " px"
-    );
-
-    bindRange(
       "setMiniOpacity",
       "miniOpacity",
       "setMiniOpacityValue"
-    );
-
-    bindRange(
-      "setMiniZoom",
-      "miniZoom",
-      "setMiniZoomValue"
     );
 
     bindCheck(
@@ -1358,7 +1332,6 @@ const SubmersiveIsle = {
               miniY: 24,
               miniSize: 350,
               miniOpacity: 0.65,
-              miniZoom: 1,
               miniEnabled: true,
               miniPing: true
             }
@@ -1411,7 +1384,6 @@ const SubmersiveIsle = {
       setMiniEnabled: "miniEnabled",
       setMiniSize: "miniSize",
       setMiniOpacity: "miniOpacity",
-      setMiniZoom: "miniZoom",
       setMiniPing: "miniPing",
       setPrimeEnabled: "primeEnabled",
       setPrimeSize: "primeSize",
@@ -1459,10 +1431,6 @@ const SubmersiveIsle = {
       [
         "setMiniOpacityValue",
         s.miniOpacity
-      ],
-      [
-        "setMiniZoomValue",
-        s.miniZoom
       ],
       [
         "setPrimeSizeValue",
@@ -1529,16 +1497,6 @@ const SubmersiveIsle = {
           ? ""
           : "none";
 
-
-      const img =
-        this.miniMap.querySelector("img");
-
-      if (img) {
-
-        img.style.transform =
-          `translate(-50%, -50%) scale(${s.miniZoom})`;
-
-      }
 
     }
 
@@ -4879,18 +4837,43 @@ const SubmersiveIsle = {
       );
 
 
-    ping.style.left =
-      `${mapX}%`;
+    const mapImage =
+  this.miniMap?.querySelector("img");
 
+const fixedZoom = 3;
 
-    ping.style.top =
-      `${mapY}%`;
+const mapOffsetX = -2.40;
+const mapOffsetY = 2.40;
 
+ping.style.left = "50%";
+ping.style.top = "50%";
+ping.style.display = "block";
 
-    ping.style.display =
-      "block";
+if (mapImage) {
 
-  },
+  const offsetX =
+  50 - ((mapX + mapOffsetX) * fixedZoom);
+
+const offsetY =
+  50 - ((mapY + mapOffsetY) * fixedZoom);
+
+  mapImage.style.width =
+    `${fixedZoom * 100}%`;
+
+  mapImage.style.height =
+    `${fixedZoom * 100}%`;
+
+  mapImage.style.left =
+    `${offsetX}%`;
+
+  mapImage.style.top =
+    `${offsetY}%`;
+
+  mapImage.style.transform =
+    "none";
+}
+
+},
 
 
   /* =======================================================
