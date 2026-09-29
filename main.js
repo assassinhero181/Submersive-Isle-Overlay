@@ -1212,6 +1212,13 @@ const SubmersiveIsle = {
       "miniEnabled"
     );
 
+     bindRange(
+       "setMiniSize",
+       "miniSize",
+       "setMiniSizeValue",
+       " px"
+    );
+
     bindRange(
       "setMiniOpacity",
       "miniOpacity",
