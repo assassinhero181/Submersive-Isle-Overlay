@@ -4741,17 +4741,17 @@ const SubmersiveIsle = {
 
 
     const minX =
-      -607;
+      -848.25;
 
     const maxX =
-      509;
+       820.75;
 
 
     const minY =
-      -505;
+     -583.28;
 
     const maxY =
-      607;
+      697.85;
 
 
     const imageWidth =
@@ -4842,8 +4842,8 @@ const SubmersiveIsle = {
 
 const fixedZoom = 3;
 
-const mapOffsetX = -2.40;
-const mapOffsetY = 2.40;
+const mapOffsetX = 0;
+const mapOffsetY = 0;
 
 ping.style.left = "50%";
 ping.style.top = "50%";
