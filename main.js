@@ -4671,23 +4671,16 @@ const SubmersiveIsle = {
       this.overlaySettings &&
       this.overlaySettings.miniPing === false
     ) {
-
       const disabledPing =
         document.getElementById(
           "miniMapCoordinatePing"
         );
 
-
       if (disabledPing) {
-
-        disabledPing.style.display =
-          "none";
-
+        disabledPing.style.display = "none";
       }
 
-
       return;
-
     }
 
 
@@ -4695,7 +4688,6 @@ const SubmersiveIsle = {
       document.getElementById(
         "miniMapCoordinatePing"
       );
-
 
     if (!ping) {
       return;
@@ -4705,183 +4697,123 @@ const SubmersiveIsle = {
     const coords =
       this.state._coords;
 
-
-    if (!coords) {
-
-      ping.style.display =
-        "none";
-
-      return;
-
-    }
-
-
-    const x =
-      Number(
-        coords.x
-      );
-
-
-    const y =
-      Number(
-        coords.y
-      );
-
-
-    const z =
-      Number(
-        coords.z
-      );
-
-
     if (
-      !Number.isFinite(x) ||
-      !Number.isFinite(y)
+      !coords ||
+      !Number.isFinite(Number(coords.x)) ||
+      !Number.isFinite(Number(coords.y))
     ) {
-
-      ping.style.display =
-        "none";
-
+      ping.style.display = "none";
       return;
-
     }
-
-
-    const minX =
-      -848.25;
-
-    const maxX =
-       820.75;
-
-
-    const minY =
-     -583.28;
-
-    const maxY =
-      697.85;
-
-
-    const imageWidth =
-      7800;
-
-    const imageHeight =
-      7817;
-
-
-    const sx =
-      y / 1000;
-
-
-    const sy =
-      x / 1000;
-
-
-    const pixelsPerX =
-      imageHeight /
-      (
-        maxX -
-        minX
-      );
-
-
-    const pixelsPerY =
-      imageWidth /
-      (
-        maxY -
-        minY
-      );
-
-
-    const rawX =
-      (
-        sx -
-        minX
-      ) *
-      pixelsPerX;
-
-
-    const rawY =
-      (
-        sy -
-        minY
-      ) *
-      pixelsPerY;
-
-
-    let mapX =
-      (
-        rawY /
-        imageWidth
-      ) *
-      100;
-
-
-    let mapY =
-      (
-        rawX /
-        imageHeight
-      ) *
-      100;
-
-
-    mapX =
-      Math.max(
-        0,
-        Math.min(
-          100,
-          mapX
-        )
-      );
-
-
-    mapY =
-      Math.max(
-        0,
-        Math.min(
-          100,
-          mapY
-        )
-      );
 
 
     const mapImage =
-  this.miniMap?.querySelector("img");
+      this.miniMap?.querySelector("img");
 
-const fixedZoom = 3;
+    if (!mapImage) {
+      ping.style.display = "none";
+      return;
+    }
 
-const mapOffsetX = 0;
-const mapOffsetY = 0;
 
-ping.style.left = "50%";
-ping.style.top = "50%";
-ping.style.display = "block";
+    /*
+      USE THE SAME GATEWAY CALIBRATION
+      AS THE WORKING AI PROXIMITY SCAN.
+    */
 
-if (mapImage) {
+    const MIN_X = -607;
+    const MAX_X = 509;
 
-  const offsetX =
-  50 - ((mapX + mapOffsetX) * fixedZoom);
+    const MIN_Y = -505;
+    const MAX_Y = 607;
 
-const offsetY =
-  50 - ((mapY + mapOffsetY) * fixedZoom);
 
-  mapImage.style.width =
-    `${fixedZoom * 100}%`;
+    const MAP_WIDTH_KM =
+      MAX_Y - MIN_Y;
 
-  mapImage.style.height =
-    `${fixedZoom * 100}%`;
+    const MAP_HEIGHT_KM =
+      MAX_X - MIN_X;
 
-  mapImage.style.left =
-    `${offsetX}%`;
 
-  mapImage.style.top =
-    `${offsetY}%`;
+    /*
+      Same coordinate conversion as AI scan.
+    */
 
-  mapImage.style.transform =
-    "none";
-}
+    const centerX =
+      (
+        (
+          Number(coords.x) / 1000 -
+          MIN_Y
+        ) /
+        MAP_WIDTH_KM
+      ) * 100;
 
-},
 
+    const centerY =
+      (
+        (
+          Number(coords.y) / 1000 -
+          MIN_X
+        ) /
+        MAP_HEIGHT_KM
+      ) * 100;
+
+
+    /*
+      Player ping stays in the center.
+      The map moves underneath it.
+    */
+
+    ping.style.left =
+      "50%";
+
+    ping.style.top =
+      "50%";
+
+    ping.style.display =
+      "block";
+
+
+    /*
+      Keep the existing mini-map zoom.
+    */
+
+    const fixedZoom =
+      5;
+
+
+    const offsetX =
+      50 -
+      (
+        centerX *
+        fixedZoom
+      );
+
+
+    const offsetY =
+      50 -
+      (
+        centerY *
+        fixedZoom
+      );
+
+
+    mapImage.style.width =
+      `${fixedZoom * 100}%`;
+
+    mapImage.style.height =
+      `${fixedZoom * 100}%`;
+
+    mapImage.style.left =
+      `${offsetX}%`;
+
+    mapImage.style.top =
+      `${offsetY}%`;
+
+    mapImage.style.transform =
+      "none";
+
+  },
 
   /* =======================================================
      LIVE COORDINATE UI
