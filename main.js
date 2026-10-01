@@ -143,10 +143,8 @@ const SubmersiveIsle = {
   _rconTelemetryPolling: false,
   _rconTelemetryTimer: null,
   _rconTelemetryRequestId: 0,
-  _lastVisualStatusScanAt: 0,
 
   LIVE_TELEMETRY_INTERVAL_MS: 5000,
-  VISUAL_STATUS_SCAN_INTERVAL_MS: 15000,
 
 
   /* =======================================================
@@ -3776,26 +3774,23 @@ const SubmersiveIsle = {
           }
 
 
-          if (livePlayer && livePlayer.player) {
+          if (livePlayer) {
 
             this.applyRconSnapshot(
               livePlayer
             );
 
-            const now = Date.now();
-
+            // IMPORTANT: Do not block the live RCON/API loop on the
+            // Electron desktop-capture HUD scanner. The scanner can be
+            // CPU-heavy and must never hold up player telemetry.
             if (
               window.electronAPI &&
               typeof window.electronAPI.getVisualStatusScan ===
                 "function" &&
-              now - this._lastVisualStatusScanAt >=
-                this.VISUAL_STATUS_SCAN_INTERVAL_MS
+              this.state.overlayOpen &&
+              this.state.currentPage === "status"
             ) {
 
-              this._lastVisualStatusScanAt = now;
-
-              // Do not block the live RCON/player-data loop on
-              // the comparatively expensive Windows screenshot scan.
               window.electronAPI.getVisualStatusScan()
                 .then((visualStatus) => {
                   this.applyVisualStatusScan(visualStatus);
@@ -3810,8 +3805,6 @@ const SubmersiveIsle = {
             }
 
           } else {
-
-            this.clearLivePlayerData();
 
             this.state.serverConnected =
               false;
@@ -3882,99 +3875,6 @@ const SubmersiveIsle = {
 
 
     poll();
-
-  },
-
-
-  /* =======================================================
-     CLEAR LIVE PLAYER DATA
-     ======================================================= */
-
-  clearLivePlayerData() {
-
-    this.state.species = null;
-    this.state.sex = null;
-    this.state.age = null;
-
-    this.state.growth = null;
-    this.state.growthStage = null;
-    this.state.growthRate = null;
-    this.state.growthEta = null;
-
-    this.state.health = null;
-    this.state.stamina = null;
-    this.state.hunger = null;
-    this.state.thirst = null;
-
-    this.state.location = null;
-    this.state.temperature = null;
-    this.state.weather = null;
-    this.state.time = null;
-
-    this.state.playerName = null;
-
-    this.state.mutations = [];
-    this.state.parentMutations = [];
-    this.state.elderA = [];
-    this.state.elderB = [];
-    this.state.primeElder = false;
-
-    this.state.weight = null;
-    this.state.speed = null;
-    this.state.biteForce = null;
-    this.state.preferredFood = null;
-    this.state.diet = null;
-    this.state.dietValues = {
-      protein: null,
-      carbohydrates: null,
-      lipids: null
-    };
-
-    this.state.statusEffects = [];
-    this.state._visualStatusEffects = {
-      bleeding: false,
-      fractured: false
-    };
-    this.state._statusEffectHistory = {};
-
-    this.state._coords = null;
-
-    this.state.proximity = {
-      contacts: [],
-      rangeMeters: 250,
-      source: "RCON PLAYER DATA",
-      aiAvailable: false,
-      aiMessage: "AI actor locations are not exposed by Evrima RCON",
-      aiContacts: []
-    };
-
-    this.state.primeTracker = {
-      lifeKey: null,
-      perfectDiet: false,
-      sanctuary: false,
-      nested: false,
-      massMigration: false,
-      migrations: [],
-      patrols: [],
-      noInfertility: true,
-      noMuscleSpasms: true,
-      raisedChild: false,
-      speciesBonus: false,
-      zoneDataLoaded: false,
-      zoneDataError: null,
-      lastZone: null,
-      lastZoneAt: 0
-    };
-
-    this.state.rconMessage =
-      "PLAYER NOT FOUND";
-
-    this.updateLiveDataStatus(
-      "waiting",
-      "SERVER CONNECTED · PLAYER NOT FOUND"
-    );
-
-    this.updateUI();
 
   },
 
@@ -4174,11 +4074,10 @@ const SubmersiveIsle = {
 
     if (!p) {
 
-      this.clearLivePlayerData();
-      this.state.serverConnected = Boolean(snapshot.connected);
       this.state.rconMessage =
         snapshot.message ||
         "PLAYER NOT FOUND";
+
 
       this.updateUI();
 

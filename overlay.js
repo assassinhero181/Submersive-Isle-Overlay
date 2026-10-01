@@ -52,6 +52,8 @@ ipcMain.handle("backend-health", async function () {
 // lightweight visual check performed at the same 5-second cadence as
 // live telemetry.
 let visualStatusScanInFlight = null;
+let lastVisualStatusScanAt = 0;
+const VISUAL_STATUS_SCAN_MIN_INTERVAL_MS = 15000;
 
 function analyzeGameHudBitmap(bitmap, width, height) {
   if (!bitmap || !width || !height) {
@@ -121,11 +123,18 @@ function analyzeGameHudBitmap(bitmap, width, height) {
 async function scanGameHudStatus() {
   if (visualStatusScanInFlight) return visualStatusScanInFlight;
 
+  const now = Date.now();
+  if (now - lastVisualStatusScanAt < VISUAL_STATUS_SCAN_MIN_INTERVAL_MS) {
+    return Promise.resolve({ found: false, bleeding: false, fractured: false });
+  }
+
+  lastVisualStatusScanAt = now;
+
   visualStatusScanInFlight = (async () => {
     try {
       const sources = await desktopCapturer.getSources({
         types: ["window"],
-        thumbnailSize: { width: 640, height: 360 },
+        thumbnailSize: { width: 320, height: 180 },
         fetchWindowIcons: false
       });
 
@@ -572,7 +581,7 @@ function startGameLifecycleWatcher() {
   gameWatcherTimer =
     setInterval(
       pollGameLifecycle,
-      5000
+      10000
     );
 }
 
@@ -1461,6 +1470,12 @@ function createOverlay() {
       }
     });
 
+  // Limit the Electron overlay renderer to 30 FPS to reduce GPU/compositor
+  // contention with The Isle and other overlays such as Discord.
+  if (overlayWindow.webContents && typeof overlayWindow.webContents.setFrameRate === "function") {
+    overlayWindow.webContents.setFrameRate(30);
+  }
+
   overlayWindow.setAlwaysOnTop(
     false,
   );
@@ -1621,53 +1636,10 @@ let overlayFocusWatcher = null;
 let overlayFocusCheckInFlight = false;
 
 function startOverlayFocusWatcher() {
-  if (overlayFocusWatcher) {
-    return;
-  }
-
-  overlayFocusWatcher = setInterval(
-    async function () {
-
-      if (
-        overlayFocusCheckInFlight ||
-        !overlayWindow ||
-        overlayWindow.isDestroyed() ||
-        !overlayWindow.isVisible()
-      ) {
-        return;
-      }
-
-      overlayFocusCheckInFlight = true;
-
-      try {
-
-        const gameOrOverlayActive =
-          await isAllowedTabForeground();
-
-        if (gameOrOverlayActive) {
-
-          overlayWindow.setAlwaysOnTop(
-            true,
-            "screen-saver"
-          );
-
-        } else {
-
-          overlayWindow.setAlwaysOnTop(
-            false
-          );
-
-        }
-
-      } finally {
-
-        overlayFocusCheckInFlight = false;
-
-      }
-
-    },
-    1000
-  );
+  // Disabled intentionally: spawning PowerShell every second to inspect
+  // the foreground window causes unnecessary CPU/process/compositor work.
+  // Overlay z-order is managed when the overlay is opened instead.
+  return;
 }
 
 // ============================================================
@@ -1690,7 +1662,8 @@ function toggleOverlay() {
   overlayWindow.showInactive();
 
   overlayWindow.setAlwaysOnTop(
-    false,
+    true,
+    "screen-saver"
   );
 }
 
@@ -1726,7 +1699,8 @@ function closeOverlay() {
 
   overlayWindow.showInactive();
   overlayWindow.setAlwaysOnTop(
-    false,
+    true,
+    "screen-saver"
   );
 }
 
@@ -1761,7 +1735,8 @@ ipcMain.on(
     overlayWindow.show();
 
     overlayWindow.setAlwaysOnTop(
-      false,
+      true,
+      "floating"
     );
 
     overlayWindow.webContents.send(
@@ -1896,11 +1871,11 @@ ipcMain.on(
       overlayWindow.show();
 
       overlayWindow.setAlwaysOnTop(
-        false,
+        true,
+        "floating"
       );
 
       startGameLifecycleWatcher();
-      startOverlayFocusWatcher();
     }
 
     if (
@@ -1932,12 +1907,11 @@ app.whenReady().then(
 
     globalShortcut.register(
       "Tab",
-      async function () {
-        if (
-          await isAllowedTabForeground()
-        ) {
-          toggleOverlay();
-        }
+      function () {
+        // Tab is a global overlay hotkey. It must work while The Isle
+        // or another desktop application is focused. No PowerShell or
+        // foreground-process polling is needed to decide whether Tab works.
+        toggleOverlay();
       }
     );
 

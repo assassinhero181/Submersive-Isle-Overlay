@@ -169,25 +169,10 @@ async function getLivePlayerDataInternal(requestedPlayerId = null) {
     const d = body && body.data ? body.data : null;
     if (!d || d.online === false) return { configured:true, connected:true, latency:Date.now()-started, message:"PLAYER NOT FOUND", player:null };
 
-    const returnedPlayerId =
-      String(d.playerId || d.steamId || "").trim();
-
-    // Never accept player data unless the backend identifies the exact
-    // Steam account that this authenticated overlay requested.
-    if (!/^\d{17}$/.test(returnedPlayerId) || returnedPlayerId !== steamId) {
-      return {
-        configured:true,
-        connected:true,
-        latency:Date.now()-started,
-        message:"PLAYER NOT FOUND",
-        player:null
-      };
-    }
-
     const species = normalizeSpeciesName(d.species);
     const creature = getCreatureData(species);
     const player = {
-      playerId: returnedPlayerId,
+      playerId: String(d.playerId || d.steamId || steamId),
       name: d.name || null,
       gender: d.gender || null,
       class: species,
