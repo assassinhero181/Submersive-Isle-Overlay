@@ -572,7 +572,7 @@ function startGameLifecycleWatcher() {
   gameWatcherTimer =
     setInterval(
       pollGameLifecycle,
-      2500
+      5000
     );
 }
 
@@ -1627,6 +1627,7 @@ function startOverlayFocusWatcher() {
 
   overlayFocusWatcher = setInterval(
     async function () {
+
       if (
         overlayFocusCheckInFlight ||
         !overlayWindow ||
@@ -1639,22 +1640,31 @@ function startOverlayFocusWatcher() {
       overlayFocusCheckInFlight = true;
 
       try {
+
         const gameOrOverlayActive =
           await isAllowedTabForeground();
 
         if (gameOrOverlayActive) {
+
           overlayWindow.setAlwaysOnTop(
             true,
             "screen-saver"
           );
+
         } else {
+
           overlayWindow.setAlwaysOnTop(
             false
           );
+
         }
+
       } finally {
+
         overlayFocusCheckInFlight = false;
+
       }
+
     },
     1000
   );
