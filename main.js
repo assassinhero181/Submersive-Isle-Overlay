@@ -144,7 +144,7 @@ const SubmersiveIsle = {
   _rconTelemetryTimer: null,
   _rconTelemetryRequestId: 0,
 
-  LIVE_TELEMETRY_INTERVAL_MS: 5000,
+  LIVE_TELEMETRY_INTERVAL_MS: 4500,
 
 
   /* =======================================================
