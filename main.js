@@ -870,7 +870,7 @@ const SubmersiveIsle = {
 
             <webview
               id="arkanisSkinStudio"
-              src="https://arkanis.gg/dashboard/1546684286038446110/panels/isle/skin-studio"
+              src="https://arkanis.gg/dashboard"
               partition="persist:arkanis"
               allowpopups
               webpreferences="contextIsolation=yes,nodeIntegration=no"
